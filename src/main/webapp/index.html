@@ -1,0 +1,84 @@
+<html>
+	<head>
+		<script src="pellets.js"></script>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+		<script src="http://code.highcharts.com/highcharts.js"></script>
+		<script src="http://code.highcharts.com/modules/exporting.js"></script>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="pellets.css">
+	</head>
+	<body onload="indexInit()">
+		<div class="temp indoor"><div class="fa fa-home"></div><span id="indoor">?</span>&#8451;</div>
+		<div class="temp skruv"><div id="skruv" class="fa fa-circle-o-notch"></div></div>
+		<div class="temp outdoor"><div class="fa fa-cloud"></div><span id="outdoor">?</span>&#8451;</div>
+		<div id="graph">
+		</div>
+
+		<table>
+			<tr>
+				<th>Varmvatten:</th>
+				<td align="right"><span id="hotwater">?</span> &#8451;</td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>Kallvatten:</th>
+				<td align="right"><span id="coldwater">?</span> &#8451;</td>
+				<td></td>
+			</tr>
+			<tr>
+				<th>Tankvatten:</th>
+				<td align="right"><span id="tankwater">?</span> &#8451;</td>
+				<td></td>
+			</tr>
+			<tr class="shuntview">
+				<th>Shuntnivå:</th>
+				<td align="right"><span id="shuntlevel">?</span> &#8451;</td>
+				<td>
+					<a href="javascript: showShuntEdit();">
+						<div class="fa fa-edit"></div>
+					</a>
+				</td>
+			</tr>
+            <tr class="shuntedit">
+                <th>Shuntnivå:</th>
+                <td>
+                    <select id="shuntselector" onchange="shuntChanged()">
+                        <option>0</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                        <option>13</option>
+                        <option>14</option>
+                        <option>15</option>
+                        <option>16</option>
+                        <option>17</option>
+                        <option>18</option>
+                        <option>19</option>
+                        <option>20</option>
+                        <option>21</option>
+                        <option>22</option>
+                        <option>23</option>
+                        <option>24</option>
+                        <option>25</option>
+                    </select>
+                </td>
+                <td></td>
+            </tr>
+			<tr class="shuntedit">
+                <th>Lösenord:</th>
+                <td><input id="pwd" type="password" onkeyup="storePwd();" onchange="storePwd();"></td>
+                <td></td>
+            </tr>
+		</table>
+        <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+	</body>
+</html>

@@ -1,0 +1,36 @@
+.outdoor {
+	color: blue;	
+}
+
+.indoor {
+	color: red;	
+}
+
+.temp {
+	font-size: 4em;
+	margin-left: 100px;
+	margin-right: 100px;
+}
+
+.skruv {
+	float: right;
+	//border: 1px solid black;
+}
+
+input, select {
+	font-size: 2em;
+	width: 300px;
+}
+
+td, th {
+	font-size: 2em;
+	text-align: left;
+}
+
+button {
+	font-size: 1em;
+}
+
+table {
+	margin-left: 100px;
+}
