@@ -6,8 +6,25 @@
 	color: red;	
 }
 
+.headtable {
+    width: 100%;
+}
+
+.headtable tr td {
+    padding-right: 20px;
+    text-align: left;
+}
+
+#panna_on {
+    color: green;
+}
+#panna_off {
+    color: red;
+    display: none;
+}
+
 .temp {
-	font-size: 4em;
+	font-size: 2em;
 	margin-left: 100px;
 	margin-right: 100px;
 }

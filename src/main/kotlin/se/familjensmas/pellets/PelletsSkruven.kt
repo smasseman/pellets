@@ -21,20 +21,32 @@ open class PelletSkruven public @Autowired constructor(
     private val logger = LoggerFactory.getLogger(javaClass.name)
 
     init {
-        val listener = DigitalListenerFactory().delay(500).create {
-            logger.info("Skruv event: " + it.state)
-            handleEvent(it.state)
+        val webListener = DigitalListenerFactory().delay(60 * 1000).create {
+            sendEventToWeb(it.state)
         }
-        pin.addListener(listener)
-        handleEvent(pin.state)
+        sendEventToWeb(pin.state)
+
+        val logListener = DigitalListenerFactory().delay(100).create {
+            sendEventToLog(it.state)
+        }
+        sendEventToLog(PinState.HIGH)
+
+        pin.addListener(webListener, logListener)
     }
 
-    private fun handleEvent(state: PinState) {
-        synchronized(this) {
-            logger.debug("Got skruv event: ${state.value}")
-            eventSink.addEvent(ServerEvent("skruv", state.name))
-            taskQueue.execute({ skruvLog.notify(state == PinState.HIGH) })
-        }
+    private fun sendEventToLog(s: PinState) {
+        logger.debug("Schedule $s to log.")
+        taskQueue.execute({
+            skruvLog.notify(s == PinState.HIGH)
+        })
+    }
+
+    private fun sendEventToWeb (s: PinState) {
+        logger.debug("Schedule $s to web.")
+        taskQueue.execute({
+            eventSink.addEvent(ServerEvent("skruv", s.name))
+        })
+
     }
 }
 

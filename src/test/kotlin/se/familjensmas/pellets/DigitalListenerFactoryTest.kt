@@ -15,100 +15,104 @@ import java.util.*
 
 class DigitalListenerFactoryTest {
 
-
     @Test
     fun testSpike() {
-        var level = PinState.LOW
         var rise = 0L
         var fall = 0L
-        val listner = DigitalListenerFactory().delay(1000).create {
+        val listener = DigitalListenerFactory().delay(1000).create {
+            println(it)
             when (it.state) {
-                PinState.HIGH -> {
-                    rise = SystemTime.now();
-                    println("high");
-                }
-                PinState.LOW -> {
-                    fall = SystemTime.now();
-                    println("low")
-                }
+                PinState.HIGH -> rise = System.currentTimeMillis()
+                PinState.LOW -> fall = System.currentTimeMillis()
             }
         }
 
-        var start = SystemTime.now()
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
-        Thread.sleep(100)
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
-        var stop = SystemTime.now()
+        listener.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        listener.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
 
-        Thread.sleep(1500)
-        Assert.assertEquals((stop - start).toDouble(), (fall - rise).toDouble(), 100.toDouble())
+        Thread.sleep(1300)
+        Assert.assertTrue("Never got HIGH event", rise != 0L)
+        Assert.assertTrue("Never got LOW event", fall != 0L)
+        Assert.assertEquals(1000.0, (fall - rise).toDouble(), 100.toDouble())
     }
-
-    @Test
-    fun testStress() {
-        var level = PinState.LOW
-        var rise = 0L
-        var fall = 0L
-        val listner = DigitalListenerFactory().delay(1000).create {
-            when (it.state) {
-                PinState.HIGH -> {
-                    rise = SystemTime.now();
-                    println("high");
-                }
-                PinState.LOW -> {
-                    fall = SystemTime.now();
-                    println("low")
-                }
-            }
-        }
-
-        val rnd = Random()
-        var start = SystemTime.now()
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
-        while (SystemTime.now() - start < 1500) {
-            Thread.sleep(rnd.nextInt(100).toLong())
-            if( rnd.nextInt(1) == 0 ) {
-                listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
-            } else {
-                listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
-            }
-        }
-        var stop = SystemTime.now()
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
-
-        Thread.sleep(1500)
-        Assert.assertEquals((stop - start).toDouble(), (fall - rise).toDouble(), 100.toDouble())
-    }
-
 
     @Test
     fun testSome() {
         var level = PinState.LOW
 
-        val listner = DigitalListenerFactory().delay(1000).create { level = it.state }
+        val listener = DigitalListenerFactory().delay(500).create { level = it.state }
 
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        listener.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        Thread.sleep(30)
+        Assert.assertEquals(PinState.HIGH, level)
+
+        listener.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
+        Thread.sleep(30)
+        Assert.assertEquals(PinState.HIGH, level)
 
         Thread.sleep(500)
         Assert.assertEquals(PinState.LOW, level)
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
+    }
+
+    @Test
+    fun testSomeMore() {
+        var gotLow = false
+
+        val listener = DigitalListenerFactory().delay(500).create {
+            if( it.state == PinState.LOW ) {
+                println("LOOOOOW")
+                gotLow = true
+            }
+        }
+
+        val stopTime = 800 + System.currentTimeMillis()
+        while( System.currentTimeMillis() < stopTime ) {
+            println("Send high")
+            listener.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+            Thread.sleep(100)
+            println("Send low")
+            listener.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
+            Thread.sleep(100)
+        }
+        listener.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        Assert.assertFalse(gotLow)
 
         Thread.sleep(600)
-        Assert.assertEquals(PinState.HIGH, level)
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
-
-        Thread.sleep(400)
-        Assert.assertEquals(PinState.HIGH, level)
-        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
-
-        Thread.sleep(700)
-        Assert.assertEquals(PinState.HIGH, level)
-
-        Thread.sleep(500)
-        Assert.assertEquals(PinState.LOW, level)
+        Assert.assertFalse(gotLow)
     }
 
     private fun createEvent(state: PinState): GpioPinDigitalStateChangeEvent? {
-        return GpioPinDigitalStateChangeEvent("Dummy", null, state);
+        return GpioPinDigitalStateChangeEvent(state.toString(), null, state);
     }
+
+    @Test
+    fun testMore() {
+        var level = PinState.LOW
+        val listner = DigitalListenerFactory().delay(10).create { level = it.state }
+
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
+        Thread.sleep(20)
+        Assert.assertEquals(PinState.LOW, level)
+    }
+
+
+    @Test
+    fun testMore2() {
+        var level = PinState.LOW
+        val listner = DigitalListenerFactory().delay(500).create { level = it.state }
+
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.HIGH))
+        listner.handleGpioPinDigitalStateChangeEvent(createEvent(PinState.LOW))
+        Thread.sleep(10)
+        Assert.assertEquals(PinState.HIGH, level)
+        Thread.sleep(600)
+        Assert.assertEquals(PinState.LOW, level)
+    }
+
 }

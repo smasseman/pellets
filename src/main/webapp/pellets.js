@@ -18,10 +18,13 @@ function indexInit() {
 	addTempListener(source, "coldwater");
 	addTempListener(source, "tankwater");
 	source.addEventListener("skruv", function(e) {
-		if( e.data == "LOW" ) 
-			$("#skruv").removeClass("fa-spin")
-		else
-			$("#skruv").addClass("fa-spin")
+		if( e.data == "LOW" ) {
+		    document.getElementById("panna_on").style.display='none';
+		    document.getElementById("panna_off").style.display='inline';
+		} else {
+            document.getElementById("panna_on").style.display='inline';
+            document.getElementById("panna_off").style.display='none';
+        }
 	}, false);
 	source.addEventListener("shuntlevel", function(e) {
 	    var v = e.data;
@@ -144,7 +147,7 @@ function setupGrapth(data) {
 	    
 	    yAxis: [{ // Primary yAxis
 	        labels: {
-	            format: '{value} %',
+	            format: '{value} minuter',
 	            style: { color: Highcharts.getOptions().colors[0] }
 	        },
 	        title: {
@@ -223,7 +226,7 @@ function setupGrapth(data) {
 	        yAxis: 0,
 	        data: skruvDat,
 	        marker: { enabled: false },
-	        tooltip: { valueSuffix: ' skruvningar' }
+	        tooltip: { valueSuffix: ' minuter per timme' }
 	    }, {
 	        name: 'Utomhus',
 	        type: 'spline',
@@ -239,21 +242,21 @@ function setupGrapth(data) {
 	        marker: { enabled: false },
 	        tooltip: { valueSuffix: ' °C' }
 	    }, {
-	        name: 'Tanken',
+	        name: 'Panntemperatur',
 	        type: 'spline',
 	        yAxis: 1,
 	        data: tankwaterDat,
 	        marker: { enabled: false },
 	        tooltip: { valueSuffix: ' °C' }
 	    }, {
-	        name: 'Från pannan',
+	        name: 'Radiator ut',
 	        type: 'spline',
 	        yAxis: 1,
 	        data: hotwaterDat,
 	        marker: { enabled: false },
 	        tooltip: { valueSuffix: ' °C' }
 	    }, {
-	        name: 'Tillbaka till pannan',
+	        name: 'Radiator retur',
 	        type: 'spline',
 	        yAxis: 1,
 	        data: coldwaterDat,

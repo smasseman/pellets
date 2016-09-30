@@ -1,6 +1,7 @@
 package se.familjensmas.pellets
 
 import com.pi4j.io.gpio.*
+import com.pi4j.wiringpi.Gpio
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.embedded.ServletRegistrationBean
@@ -9,6 +10,8 @@ import org.springframework.context.annotation.Configuration
 import se.familjensmas.pi4j.DS1820Reader
 import java.io.File
 import java.math.BigDecimal
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.Duration
 import javax.annotation.PostConstruct
 import javax.annotation.Resource
@@ -40,10 +43,10 @@ open class PelletConfig {
         indoor = temps[0]
 
         var tempIndex = 0
-        var tempUpdater : () -> Unit = {}
+        var tempUpdater: () -> Unit = {}
         tempUpdater = {
             tempIndex++
-            if( tempIndex == temps.size ) tempIndex = 0
+            if (tempIndex == temps.size) tempIndex = 0
             temps[tempIndex].update()
             queue.schedule(Duration.ofSeconds(1), "Schedule next temp update.") {
                 queue.executeWhenEmpty("Temp updater", tempUpdater)
@@ -119,10 +122,10 @@ open class PelletConfig {
     }
 
     @Bean(name = arrayOf("shuntpin"))
-    open fun shuntpin(): com.pi4j.io.gpio.GpioPinDigitalOutput {
+    open fun shuntpin(): WriteablePin {
         val pinnr = RaspiPin.GPIO_01
         val gpioFac = GpioFactory.getInstance()
-        return gpioFac.provisionDigitalOutputPin(pinnr, "shunt", PinState.LOW)
+        return WriteableGpioPinWrapper(gpioFac.provisionDigitalOutputPin(pinnr, "shunt", PinState.LOW))
     }
 
     @Bean
@@ -132,4 +135,23 @@ open class PelletConfig {
         val p = gpioFac.provisionDigitalInputPin(pinnr, "skruvdetektor", PinPullResistance.PULL_UP)
         return p
     }
+
+    @Bean
+    open fun shuntLevelStorage(): ShuntLevelStorage {
+        val SHUNT_LEVEL_FILENAME = "shuntlevel.txt"
+
+        return object : ShuntLevelStorage {
+
+            override fun readShuntLevel(): BigDecimal {
+                return BigDecimal(String(Files.readAllBytes(Paths.get(SHUNT_LEVEL_FILENAME))))
+            }
+
+            override fun save(shuntLevel: BigDecimal) {
+                Paths.get(SHUNT_LEVEL_FILENAME).toFile().writeBytes(shuntLevel.toString().toByteArray())
+            }
+
+        }
+
+    }
 }
+

@@ -8,25 +8,32 @@
 		<link rel="stylesheet" href="pellets.css">
 	</head>
 	<body onload="indexInit()">
-		<div class="temp indoor"><div class="fa fa-home"></div><span id="indoor">?</span>&#8451;</div>
-		<div class="temp skruv"><div id="skruv" class="fa fa-circle-o-notch"></div></div>
-		<div class="temp outdoor"><div class="fa fa-cloud"></div><span id="outdoor">?</span>&#8451;</div>
+		<table class="headtable">
+			<tr>
+				<td class="temp indoor"><span class="fa fa-home"></span><span id="indoor">?</span>&#8451;</td>
+                <td class="temp outdoor"><span class="fa fa-cloud"></span><span id="outdoor">?</span>&#8451;</td>
+                <td class="temp">
+                    <span id="panna_on">Brännare på</span>
+                    <span id="panna_off">Brännare av</span>
+                </td>
+			</tr>
+		</table>
 		<div id="graph">
 		</div>
 
 		<table>
 			<tr>
-				<th>Varmvatten:</th>
+				<th>Radiator ut:</th>
 				<td align="right"><span id="hotwater">?</span> &#8451;</td>
 				<td></td>
 			</tr>
 			<tr>
-				<th>Kallvatten:</th>
+				<th>Radiator retur:</th>
 				<td align="right"><span id="coldwater">?</span> &#8451;</td>
 				<td></td>
 			</tr>
 			<tr>
-				<th>Tankvatten:</th>
+				<th>Panntemperatur:</th>
 				<td align="right"><span id="tankwater">?</span> &#8451;</td>
 				<td></td>
 			</tr>
@@ -43,21 +50,6 @@
                 <th>Shuntnivå:</th>
                 <td>
                     <select id="shuntselector" onchange="shuntChanged()">
-                        <option>0</option>
-                        <option>1</option>
-                        <option>2</option>
-                        <option>3</option>
-                        <option>4</option>
-                        <option>5</option>
-                        <option>6</option>
-                        <option>7</option>
-                        <option>8</option>
-                        <option>9</option>
-                        <option>10</option>
-                        <option>11</option>
-                        <option>12</option>
-                        <option>13</option>
-                        <option>14</option>
                         <option>15</option>
                         <option>16</option>
                         <option>17</option>

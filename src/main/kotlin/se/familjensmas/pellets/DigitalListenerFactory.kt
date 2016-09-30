@@ -17,23 +17,6 @@ class DigitalListenerFactory {
         return this
     }
 
-    class E(val executionTime: Long) : Delayed {
-        override fun getDelay(unit: TimeUnit): Long {
-            val millis = executionTime - SystemTime.now()
-            return unit.convert(millis, TimeUnit.MILLISECONDS)
-        }
-
-        override fun compareTo(other: Delayed?): Int {
-            if (other == null)
-                return 0
-            else if (other is E)
-                return java.lang.Long.compare(executionTime, other.executionTime)
-            else
-                return 0
-        }
-
-    }
-
     fun create(listener: (event: GpioPinDigitalStateChangeEvent) -> Unit): GpioPinListenerDigital {
 
         val queue = Executors.newSingleThreadScheduledExecutor()
@@ -42,17 +25,24 @@ class DigitalListenerFactory {
         var last = PinState.LOW
 
         fun rise(e: GpioPinDigitalStateChangeEvent) = Runnable {
-            if( last == PinState.LOW) {
+            if (last == PinState.LOW) {
+                //println("Rise")
                 last = PinState.HIGH
                 listener.invoke(e)
+            } else {
+                //println("Rise ignored")
             }
         }
 
         fun fall(e: GpioPinDigitalStateChangeEvent) = Runnable {
             val timeSinceLastFall = SystemTime.now() - lastFall
-            if( timeSinceLastFall > delay) {
+            val timeSinceLastRise = SystemTime.now() - lastRise
+            if (timeSinceLastFall > delay - 1 && timeSinceLastRise > delay - 1) {
+                //println("Fall")
                 last = PinState.LOW
                 listener.invoke(e)
+            } else {
+                //println("Fall ignored")
             }
         }
 
@@ -60,15 +50,24 @@ class DigitalListenerFactory {
             override fun handleGpioPinDigitalStateChangeEvent(e: GpioPinDigitalStateChangeEvent?) {
                 if (e == null)
                     return;
-                when(e.state) {
+                when (e.state) {
+
+                    null -> {
+                        /*Do nothing.*/
+                    }
+
                     PinState.HIGH -> {
                         lastRise = SystemTime.now()
-                        queue.schedule(rise(e), delay.toLong(), TimeUnit.MILLISECONDS)
+                        println("Schedule Rise")
+                        queue.schedule(rise(e), 1, TimeUnit.MILLISECONDS)
                     }
+
                     PinState.LOW -> {
                         lastFall = SystemTime.now()
+                        println("Schedule Fall")
                         queue.schedule(fall(e), delay.toLong(), TimeUnit.MILLISECONDS)
                     }
+
                 }
             }
         }
